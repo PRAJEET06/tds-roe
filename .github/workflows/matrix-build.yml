@@ -1,0 +1,31 @@
+name: 🤖 Multi-Platform Matrix Build
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: matrix-8dde7df
+        run: echo "Building for OS: ${{ matrix.os }}"
+
+      - name: Generate build artifact
+        run: |
+          echo "This is the build artifact for ${{ matrix.os }}." > output.txt
+          echo "Generated at $(date)" >> output.txt
+        shell: bash
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-8dde7df-${{ matrix.os }}
+          path: output.txt
