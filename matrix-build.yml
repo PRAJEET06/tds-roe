@@ -1,0 +1,54 @@
+# This is a human-readable name for your workflow
+name: 🤖 Multi-Platform Matrix Build
+
+# This controls when the workflow runs
+on:
+  # Run it on any push to the main branch
+  push:
+    branches: [ main ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs
+jobs:
+  # We have one job, which we've named 'build'
+  build:
+    # This is the key to the matrix!
+    strategy:
+      # This tells GitHub not to cancel all jobs if one fails
+      fail-fast: false
+      # This defines the matrix. We are creating a variable called 'os'.
+      matrix:
+        # Here are our 3 variants, as required
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    # The 'runs-on' tag is now dynamic, using the 'os' variable from the matrix
+    # This job will spin up 3 separate runners, one for each OS.
+    runs-on: ${{ matrix.os }}
+
+    # These are the steps that will run on EACH of the 3 runners
+    steps:
+      # Step 1: A simple step to echo information.
+      # This satisfies the "identifier: matrix-8dde7df" requirement.
+      - name: matrix-8dde7df
+        run: echo "Building for OS: ${{ matrix.os }}"
+
+      # Step 2: Generate the unique build artifact
+      # We create a simple text file. The 'shell: bash' part ensures
+      # this command works on all 3 operating systems (even Windows).
+      - name: Generate build artifact
+        run: |
+          echo "This is the build artifact for ${{ matrix.os }}." > output.txt
+          echo "Generated at $(date)" >> output.txt
+        shell: bash
+
+      # Step 3: Upload the artifact
+      # We use a pre-built "action" to handle the upload
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          # This is the artifact name, satisfying the "build-8dde7df-<variant>" requirement
+          # Example: 'build-8dde7df-ubuntu-latest'
+          name: build-8dde7df-${{ matrix.os }}
+          # This is the file we created in the previous step
+          path: output.txt
